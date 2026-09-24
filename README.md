@@ -4,49 +4,88 @@ Load maps in Car-soccer !
 # How to use
 - Go to https://car-soccer.com
 - Press Control + Shift + I (Or open Devtools)
-- Paste-in the code
+- Paste-in the code to inject
 ```
 (async () => {
-  const arq = await new Promise(res => {
-    const i = document.createElement('input');
-    i.type = 'file';
-    i.accept = '.json';
-    i.onchange = () => res(i.files[0]);
-    i.click();
+  const file = await new Promise(resolve => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = () => resolve(input.files[0]);
+    input.click();
   });
-  const texto = await arq.text();
-  const novo = JSON.parse(texto);
-  const ehMapa = o => o && typeof o === 'object' && 'ballGoals' in o && 'meshes' in o;
+
+  const text = await file.text();
+  const newMap = JSON.parse(text);
+
+  const isMap = obj =>
+    obj &&
+    typeof obj === 'object' &&
+    'ballGoals' in obj &&
+    'meshes' in obj;
 
   // 1) JSON.parse
-  const parseOrig = JSON.parse;
-  JSON.parse = function (t, r) {
-    const out = parseOrig.call(this, t, r);
-    if (ehMapa(out)) { console.log('JSON.parse: mapa Switched!'); return structuredClone(novo); }
-    return out;
+  const originalParse = JSON.parse;
+
+  JSON.parse = function (text, reviver) {
+    const output = originalParse.call(this, text, reviver);
+
+    if (isMap(output)) {
+      console.log('JSON.parse: map replaced!');
+      return structuredClone(newMap);
+    }
+
+    return output;
   };
 
   // 2) response.json()
-  const jsonOrig = Response.prototype.json;
+  const originalJson = Response.prototype.json;
+
   Response.prototype.json = async function () {
-    const out = await jsonOrig.call(this);
-    if (ehMapa(out)) { console.log('response.json: map Switched!', this.url); return structuredClone(novo); }
-    return out;
+    const output = await originalJson.call(this);
+
+    if (isMap(output)) {
+      console.log(
+        'response.json: map replaced!',
+        this.url
+      );
+
+      return structuredClone(newMap);
+    }
+
+    return output;
   };
 
-  // 3) só espiar as requisições
-  const fetchOrig = window.fetch;
+  // 3) Only monitor requests
+  const originalFetch = window.fetch;
+
   window.fetch = function (input, init) {
-    console.log('fetch:', String(input?.url ?? input));
-    return fetchOrig.call(window, input, init);
-  };
-  const open = XMLHttpRequest.prototype.open;
-  XMLHttpRequest.prototype.open = function (m, url) {
-    console.log('XHR:', url);
-    return open.apply(this, arguments);
+    console.log(
+      'fetch:',
+      String(input?.url ?? input)
+    );
+
+    return originalFetch.call(
+      window,
+      input,
+      init
+    );
   };
 
-  console.log('Ready! Select the map Dribbling challange remastered 1.');
+  const originalOpen = XMLHttpRequest.prototype.open;
+
+  XMLHttpRequest.prototype.open = function (method, url) {
+    console.log('XHR:', url);
+
+    return originalOpen.apply(
+      this,
+      arguments
+    );
+  };
+
+  console.log(
+    'Ready! Now select the map in the game without reloading the page.'
+  );
 })();
 ```
 - Select the map in File Manager
