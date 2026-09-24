@@ -93,4 +93,3 @@ Load maps in Car-soccer !
 - Enjoy!
 
 Made by brian_wql (brian-wql)
-(im sorry for the code being PT-BR, im Brazilian btw)
