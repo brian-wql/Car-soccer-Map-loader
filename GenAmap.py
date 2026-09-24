@@ -1,4 +1,4 @@
-```python
+
 #!/usr/bin/env python3
 """Generates a flat map for car-soccer.com in the csmap format.
 
