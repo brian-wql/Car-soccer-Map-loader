@@ -67,7 +67,7 @@ Load maps in Car-soccer !
   console.log('Ready! Press 5 at any time to open the map selector.');
 })();
 ```
-- to load a map, select it on the KEY 5
+- to load a map, select it on the KEY 5 and type "1"
 - Choose one of the two maps from the Custom Maps menu. It's usually Dribbling Challenge 1 Remastered, but it depends on the map's JSON.
 - Enjoy!
 
